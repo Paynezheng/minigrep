@@ -20,7 +20,40 @@ impl Config {
 
 pub fn run(config: Config) -> Result<(),Box<dyn Error>> {
     let contents = fs::read_to_string(config.filename)?;
-    println!("With text:\n{}",contents);
+    for line in search(&config.query,&contents) {
+        println!("{}",line);
+    }
 
     Ok(())
 }
+
+pub fn search<'a>(_query: &str,_contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+    for line in _contents.lines() {
+        if line.contains(_query){
+            results.push(line);
+        }
+    }
+    results
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn one_result() {
+        let query = "fast";
+        let contents = "\
+Rust:
+safe,fast,productive.
+苟利国家生死以，
+岂因祸福避趋之？";
+
+        assert_eq!(
+            vec!["safe,fast,productive."],
+            search(query,contents)
+            );
+    }
+}
+
